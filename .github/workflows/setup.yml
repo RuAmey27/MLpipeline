@@ -36,7 +36,7 @@ jobs:
           EC2_USER: ${{ secrets.EC2_USER }}
           SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
-          echo "$SSH_KEY" > Flaskapp.pem
+          echo "$SSH_KEY" | tr -d '\r' > Flaskapp.pem
           chmod 600 Flaskapp.pem
           
           # Check if folder exists, if not, create it
