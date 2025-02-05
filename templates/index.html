@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Salary Prediction</title>
+    <script>
+        async function predictSalary() {
+            let experience = document.getElementById("experience").value;
+            let response = await fetch("/predict", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({"YearsExperience": parseFloat(experience)})
+            });
+            let result = await response.json();
+            document.getElementById("result").innerText = "Predicted Salary: " + result.prediction;
+        }
+
+        async function submitFeedback(correct) {
+            let experience = document.getElementById("experience").value;
+            let salary = document.getElementById("salary").value;
+            let response = await fetch("/feedback", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({"YearsExperience": parseFloat(experience), "Salary": parseFloat(salary)})
+            });
+            let result = await response.json();
+            alert(result.message);
+        }
+    </script>
+</head>
+<body>
+    <h1>Salary Prediction</h1>
+    <label for="experience">Years of Experience:</label>
+    <input type="text" id="experience" required>
+    <button onclick="predictSalary()">Predict</button>
+    <p id="result"></p>
+    
+    <h2>Feedback</h2>
+    <label for="salary">Actual Salary:</label>
+    <input type="text" id="salary" required>
+    <button onclick="submitFeedback(true)">Submit Feedback</button>
+</body>
+</html>

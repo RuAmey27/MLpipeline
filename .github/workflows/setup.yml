@@ -1,0 +1,47 @@
+name: ML Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Check dataset changes and retrain if needed
+        run: |
+          python retrain.py
+
+      - name: Deploy Model to EC2
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+        run: |
+          echo "$SSH_KEY" > ec2_key.pem
+          chmod 400 ec2_key.pem
+          scp -i ec2_key.pem models/model.pkl $EC2_USER@$EC2_HOST:/home/ubuntu/models/model.pkl
+          ssh -i ec2_key.pem $EC2_USER@$EC2_HOST "sudo systemctl restart my_flask_app"
+
+      - name: Push Updated Model
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add models/model_*.pkl
+          git commit -m "Updated model $(date)"
+          git push
