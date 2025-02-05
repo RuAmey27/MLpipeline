@@ -29,6 +29,8 @@ jobs:
         run: |
           source myenv/bin/activate
           python train.py
+          echo "EC2_USER: $EC2_USER"
+          echo "EC2_HOST: $EC2_HOST"
 
       - name: Deploy Model to EC2
         env:
