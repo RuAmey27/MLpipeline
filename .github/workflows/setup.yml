@@ -34,25 +34,32 @@ jobs:
 
       - name: Deploy Model to EC2
         env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}  # Ensure these are set correctly in GitHub Secrets
           EC2_USER: ${{ secrets.EC2_USER }}
           SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
-          echo "-----BEGIN OPENSSH PRIVATE KEY-----b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZWQyNTUxOQAAACBM/h3To2S9EDL/wffBZqQBSqFr9HLwJSXSHebbOL1dfgAAAIiyelOQsnpTkAAAAAtzc2gtZWQyNTUxOQAAACBM/h3To2S9EDL/wffBZqQBSqFr9HLwJSXSHebbOL1dfgAAAEAwUQIBATAFBgMrZXAEIgQg0Cixutle/heE9p3nDVMSAUz+HdOjZL0QMv/B98FmpAFKoWv0cvAlJdId5ts4vV1+AAAAAAECAwQF-----END OPENSSH PRIVATE KEY-----"  > Flaskapp.pem
+          # Save the SSH key and fix any potential issues with carriage returns
+          echo "$SSH_KEY" | tr -d '\r' > Flaskapp.pem
           chmod 600 Flaskapp.pem
+
           # Create the .ssh directory if it doesn't exist
           mkdir -p ~/.ssh
 
           # Automatically add the EC2 host to the known_hosts file without user interaction
           ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
+
+          # Debugging - Check environment variables
           echo "EC2_USER: $EC2_USER"
           echo "EC2_HOST: $EC2_HOST"
-          # Check if folder exists, if not, create it
-          ssh -i "Flaskapp.pem" ubuntu@ec2-3-89-117-27.compute-1.amazonaws.com '[ -d "/home/$EC2_USER/models" ] || mkdir -p /home/$EC2_USER/models'
-
+          
+          # Verify the SSH key
+          cat Flaskapp.pem
+          
+          # Ensure folder exists on EC2
+          ssh -i Flaskapp.pem $EC2_USER@$EC2_HOST '[ -d "/home/$EC2_USER/models" ] || mkdir -p /home/$EC2_USER/models'
+          
           # Copy model file to EC2
-          scp -i Flaskapp.pem models/model_*.pkl ubuntu@ip-172-31-83-233:/home/$EC2_USER/models/
-
+          scp -i Flaskapp.pem models/model_*.pkl $EC2_USER@$EC2_HOST:/home/$EC2_USER/models/
+          
           # Restart application
-          ssh -i Flaskapp.pem ubuntu@ip-172-31-83-233 "sudo systemctl restart my_flask_app"
-  
+          ssh -i Flaskapp.pem $EC2_USER@$EC2_HOST "sudo systemctl restart my_flask_app"
