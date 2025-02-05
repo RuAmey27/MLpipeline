@@ -56,7 +56,7 @@ jobs:
           cat Flaskapp.pem
           
           # Ensure folder exists on EC2
-          ssh -i Flaskapp.pem $EC2_USER@$EC2_HOST '[ -d "/home/$EC2_USER/models" ] || mkdir -p /home/$EC2_USER/models'
+          ssh -i Flaskapp.pem $EC2_USER@$EC2_HOST '[ -d "/home/$EC2_USER/models" ] || sudo mkdir -p /home/$EC2_USER/models'
           
           # Copy model file to EC2
           scp -i Flaskapp.pem models/model_*.pkl $EC2_USER@$EC2_HOST:/home/$EC2_USER/models/
