@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import pandas as pd
 import pickle
 
@@ -7,6 +7,10 @@ app = Flask(__name__)
 # Load latest model
 with open("models/model.pkl", "rb") as f:
     model = pickle.load(f)
+
+@app.route("/", methods=["GET"])
+def index():
+    return render_template("index.html")  # Serves the HTML template
 
 @app.route("/predict", methods=["POST"])
 def predict():

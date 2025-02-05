@@ -21,6 +21,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          source myenv/bin/activate
           pip install -r requirements.txt
 
       - name: Check dataset changes and retrain if needed
