@@ -19,11 +19,6 @@ jobs:
         with:
           python-version: '3.8'
 
-      - name: Install dependencies
-        run: |
-          source myenv/bin/activate
-          pip install -r requirements.txt
-
       - name: Check dataset changes and retrain if needed
         run: |
           python retrain.py
@@ -41,8 +36,8 @@ jobs:
 
       - name: Push Updated Model
         run: |
-          git config --global user.email "github-actions@github.com"
-          git config --global user.name "GitHub Actions"
+          git config --global user.email "ameypande2709@gmail.com"
+          git config --global user.name "RuAmey27"
           git add models/model_*.pkl
           git commit -m "Updated model $(date)"
           git push
