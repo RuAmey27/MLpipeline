@@ -61,5 +61,3 @@ jobs:
           # Copy model file to EC2
           scp -i Flaskapp.pem models/model_*.pkl $EC2_USER@$EC2_HOST:/home/$EC2_USER/models/
           
-          # Restart application
-          ssh -i Flaskapp.pem $EC2_USER@$EC2_HOST "sudo systemctl restart my_flask_app"
