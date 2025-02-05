@@ -38,6 +38,10 @@ jobs:
         run: |
           echo "-----BEGIN OPENSSH PRIVATE KEY-----b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZWQyNTUxOQAAACBM/h3To2S9EDL/wffBZqQBSqFr9HLwJSXSHebbOL1dfgAAAIiyelOQsnpTkAAAAAtzc2gtZWQyNTUxOQAAACBM/h3To2S9EDL/wffBZqQBSqFr9HLwJSXSHebbOL1dfgAAAEAwUQIBATAFBgMrZXAEIgQg0Cixutle/heE9p3nDVMSAUz+HdOjZL0QMv/B98FmpAFKoWv0cvAlJdId5ts4vV1+AAAAAAECAwQF-----END OPENSSH PRIVATE KEY-----"  > Flaskapp.pem
           chmod 600 Flaskapp.pem
+          # Create the .ssh directory if it doesn't exist
+          mkdir -p ~/.ssh
+
+          # Automatically add the EC2 host to the known_hosts file without user interaction
           ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
           echo "EC2_USER: $EC2_USER"
           echo "EC2_HOST: $EC2_HOST"
