@@ -1,9 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.10-slim'  // Use a Python 3.10 Docker image
-        }
-    }
+    agent  any
     environment {
         EC2_HOST = credentials('EC2_HOST')  // Store EC2_HOST in Jenkins credentials
         EC2_USER = credentials('EC2_USER')  // Store EC2_USER in Jenkins credentials
@@ -41,8 +37,8 @@ pipeline {
             steps {
                 sh '''
                     # Save the SSH key and fix any potential issues with carriage returns
-                    echo "$SSH_KEY" | tr -d '\r' > Flaskapp.pem
-                    chmod 600 Flaskapp.pem
+                    echo "$SSH_KEY" | tr -d '\r' > ec2_server
+                    chmod 600 ec2_server
 
                     # Create the .ssh directory if it doesn't exist
                     mkdir -p ~/.ssh
@@ -55,13 +51,13 @@ pipeline {
                     echo "EC2_HOST: $EC2_HOST"
 
                     # Verify the SSH key
-                    cat Flaskapp.pem
+                    cat ec2_server
 
                     # Ensure folder exists on EC2
-                    ssh -i Flaskapp.pem $EC2_USER@$EC2_HOST '[ -d "/home/$EC2_USER/models" ] || sudo mkdir -p /home/$EC2_USER/models'
+                    ssh -i ec2_server $EC2_USER@$EC2_HOST '[ -d "/home/$EC2_USER/models" ] || sudo mkdir -p /home/$EC2_USER/models'
 
                     # Copy model file to EC2
-                    scp -i Flaskapp.pem models/model_*.pkl $EC2_USER@$EC2_HOST:/home/$EC2_USER/models/
+                    scp -i ec2_server models/model_*.pkl $EC2_USER@$EC2_HOST:/home/$EC2_USER/models/
                 '''
             }
         }
